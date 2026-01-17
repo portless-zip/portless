@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #ifdef _WIN32
     #include <winsock2.h>
@@ -14,9 +15,6 @@
     #define sleep(x) Sleep((x) * 1000)
     #define read_socket(fd, buf, len) recv(fd, buf, len, 0)
     #define write_socket(fd, buf, len) send(fd, buf, len, 0)
-    #ifndef IPPROTO_TCP
-        #define IPPROTO_TCP 6
-    #endif
 #else
     #include <arpa/inet.h>
     #include <sys/socket.h>
@@ -29,9 +27,8 @@
     #define write_socket(fd, buf, len) write(fd, buf, len)
 #endif
 
-#define TUNNEL_PORT 36008
-#define MAX_PAYLOAD 65536 
-#define MAX_STREAMS 32
+#define MAX_PAYLOAD 65536
+#define MAX_STREAMS 64
 
 #define FRAME_STREAM_OPEN  0x01
 #define FRAME_STREAM_DATA  0x02
@@ -40,10 +37,17 @@
 
 #pragma pack(push, 1)
 typedef struct {
-    uint32_t stream_id;      
+    uint32_t stream_id;
     uint8_t  frame_type;
-    uint32_t payload_length; 
+    uint32_t payload_length;
 } portless_header_t;
 #pragma pack(pop)
+
+typedef struct {
+    int fd;
+    uint32_t id;
+    uint64_t bytes_in;
+    uint64_t bytes_out;
+} stream_t;
 
 #endif
