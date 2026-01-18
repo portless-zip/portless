@@ -1,8 +1,8 @@
 CC      := gcc
 WINCC   := x86_64-w64-mingw32-gcc
-CFLAGS  := -Wall -Wextra -O2 -I./headers/common
+CFLAGS  := -Wall -Wextra -O2 -I./headers/common -static
 BUILD   := build
-WLIBS   := -lws2_32
+WLIBS   := -lws2_32 -static
 
 .PHONY: all clean client relay client_win relay_win
 
