@@ -109,20 +109,8 @@ int main(int argc, char *argv[]) {
                     char buf[MAX_PAYLOAD]; int n = read_socket(fds[i].fd, buf, MAX_PAYLOAD);
                     uint32_t sid = 0;
                     for(int j=0; j<MAX_STREAMS; j++) if((int)streams[j].fd == (int)fds[i].fd) sid = streams[j].id;
-                    if (n <= 0) { 
-                        for(int j=0; j<MAX_STREAMS; j++) {
-                            if((int)streams[j].fd == (int)fds[i].fd) {
-                                printf("[Stream %u] Closed - Sent: %lu KB, Received: %lu KB\n", sid, streams[j].bytes_in/1024, streams[j].bytes_out/1024);
-                                streams[j].fd = -1;
-                            }
-                        }
-                        send_frame(tunnel_fd, sid, FRAME_STREAM_CLOSE, 0, NULL);
-                        close(fds[i].fd);
-                    }
-                    else {
-                        for(int j=0; j<MAX_STREAMS; j++) if((int)streams[j].fd == (int)fds[i].fd) streams[j].bytes_in += n;
-                        send_frame(tunnel_fd, sid, FRAME_STREAM_DATA, n, buf);
-                    }
+                    if (n <= 0) { send_frame(tunnel_fd, sid, FRAME_STREAM_CLOSE, 0, NULL); close(fds[i].fd); for(int j=0; j<MAX_STREAMS; j++) if((int)streams[j].fd == (int)fds[i].fd) streams[j].fd = -1; }
+                    else send_frame(tunnel_fd, sid, FRAME_STREAM_DATA, n, buf);
                 }
             }
         }
